@@ -6,21 +6,42 @@ html, body { width: 100%; height: 100%; }
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color: burlywood;
+    background-color: rgb(10, 100, 10);
 }
 
 .board-top {
     width: 100%;
-    
+    padding: 50px;
+    display: flex;
+    justify-content: space-between;
 }
 
-#pool {
-
+.board-top > * {
+    width: 100px;
+    height: 150px;
 }
+
+.pile {
+    border: 3px solid #cccccc;
+    border-radius: 10px;
+}
+
+#pool, #pool-face { position: relative; }
+
+#pool .card, #pool-face .card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: none;
+}
+
+#pool:first-child { box-shadow: #222 2px 1px 5px; }
+#pool-face:first-child { box-shadow: #222 2px 1px 5px; }
 
 #decks {
     width: 100%;
-    padding: 50px;
+    padding: 0 50px 50px;
+    flex: 1;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
@@ -32,4 +53,8 @@ html, body { width: 100%; height: 100%; }
     margin: 0 4px;
     display: flex;
     flex-direction: column;
+}
+
+.deck .card {
+    margin-bottom: -115px;
 }
