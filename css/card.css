@@ -5,9 +5,6 @@
     border-radius: 5px;
     box-shadow: #222 2px 1px 5px;
     position: relative;
-    margin-bottom: -115px;
-    /* opacity: .2; */
-
 }
 
 .back { background: repeating-linear-gradient(-70deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px); }
