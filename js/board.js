@@ -1,12 +1,19 @@
 class Board {
 
+    _$board
+    _$pool
+    _$poolFace
+    _$piles
+    _$decks
+
     constructor(boardQuery) {
-        const $board = document.querySelector(boardQuery);
-        let $pool = $board.querySelector('#pool');
-        let $piles = $board.querySelector('#piles');
-        let $decks = Array.from($board.querySelectorAll('#decks .deck'));
+        this._$board = document.querySelector(boardQuery);
+        this._$pool = this._$board.querySelector('#pool');
+        this._$poolFace = this._$board.querySelector('#pool-face');
+        this._$piles = this._$board.querySelector('#piles');
+        this._$decks = Array.from(this._$board.querySelectorAll('#decks .deck'));
         
-        $decks.map($d => {
+        this._$decks.map($d => {
             $d.ondragover = (ev) => ev.preventDefault();
             $d.ondrop = (ev) => {
                 ev.preventDefault();
@@ -14,25 +21,40 @@ class Board {
                 $d.appendChild(document.getElementById(data));
             };
         });
-        console.log($decks);
+
         let cards = this._shuffle(this._buildCards());
-        console.log(cards);
-        this._initGame($pool, $decks, cards);
+        this._initGame(cards);
     }
 
     /**
-     * @returns {any}
+     * @returns {Card[]}
      */
     _buildCards() {
         let cards = [];
         Object.keys(Suit).map(suit => {
             for (let i = 1; i <= 13; i++) {
-                cards.push(new Card(i, suit));
+                let c = new Card(i, suit);
+                c.$card.onclick = (ev) => {
+                    const $card = ev.target.closest('.card');
+                    const $parent = $card.parentElement;
+                    if ($parent.id === 'pool') {
+                        $parent.removeChild($card);
+                        this._$poolFace.appendChild($card);
+                    }
+                };
+                cards.push(c);
             }
         });
         return cards;
     }
 
+    /**
+     *
+     *
+     * @param {Card[]} cards
+     * @returns {Card[]}
+     * @memberof Board
+     */
     _shuffle(cards) {
         var copy = [], n = cards.length, i;
         while (n) {
@@ -42,17 +64,12 @@ class Board {
         return copy;
     }
 
-    /**
-     * 
-     * @param {HTMLElement[]} $decks 
-     * @param {Card[]} cards 
-     */
-    _initGame($pool, $decks, cards) {
+    _initGame(cards) {
         for (let i = 0; i < 12; i++) {
             let position = Math.floor(Math.random() * cards.length);
-            $decks[position % 7].appendChild(cards.pop().HTMLElement);
+            this._$decks[position % 7].appendChild(cards.pop().$card);
         }
-        $pool.appendChild($decks[0].HTMLElement);
+        cards.map(c => this._$pool.appendChild(c.$card));
     }
 
 }
