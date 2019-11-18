@@ -1,24 +1,57 @@
 class Board {
 
-    _$board
     _$pool
     _$poolFace
-    _$piles
     _$decks
 
     constructor(boardQuery) {
-        this._$board = document.querySelector(boardQuery);
-        this._$pool = this._$board.querySelector('#pool');
-        this._$poolFace = this._$board.querySelector('#pool-face');
-        this._$piles = this._$board.querySelector('#piles');
-        this._$decks = Array.from(this._$board.querySelectorAll('#decks .deck'));
+        const $board = document.querySelector(boardQuery);
+        this._$pool = $board.querySelector('#pool');
+        this._$poolFace = $board.querySelector('#pool-face');
+        const $piles = Array.from($board.querySelectorAll('.pile'));
+        console.log($piles);
+        this._$decks = Array.from($board.querySelectorAll('#decks .deck'));
         
+        $piles.map($p => {
+            $p.ondragover = (ev) => ev.preventDefault();
+            $p.ondrop = (ev) => {
+                ev.preventDefault();
+                const cardId = ev.dataTransfer.getData('cardId');
+                const $card = document.getElementById(cardId);
+                const $sourceDeck = $card.parentElement;
+                if (!$p.children.length) {
+                    if (+$card.dataset.number !== 1) {
+                        return;
+                    }
+                } else if (+$p.lastChild.dataset.number !== +$card.dataset.number - 1) {
+                    return;
+                }
+                $p.appendChild($card);
+                if ($sourceDeck.lastChild) {
+                    $sourceDeck.lastChild.classList.remove('back');
+                }
+            };
+        });
+
         this._$decks.map($d => {
             $d.ondragover = (ev) => ev.preventDefault();
             $d.ondrop = (ev) => {
                 ev.preventDefault();
-                var data = ev.dataTransfer.getData('card');
-                $d.appendChild(document.getElementById(data));
+                const $targetCard = $d.lastChild;
+                const cardId = ev.dataTransfer.getData('cardId');
+                const $card = document.getElementById(cardId);
+                const $sourceDeck = $card.parentElement;
+                if ($targetCard) {
+                    const targetIsBlack = $targetCard.classList.contains('clubs') || $targetCard.classList.contains('spades');
+                    const sourceIsBlack = $card.classList.contains('clubs') || $card.classList.contains('spades');
+                    if (targetIsBlack === sourceIsBlack) { return; }
+                    if (+$targetCard.dataset.number !== +$card.dataset.number + 1) { return; }
+                }
+                const $siblings = Array.from($card.parentElement.children);
+                $siblings.slice($siblings.indexOf($card)).map($s => $d.appendChild($s));
+                if ($sourceDeck.lastChild) {
+                    $sourceDeck.lastChild.classList.remove('back');
+                }
             };
         });
 
@@ -65,10 +98,20 @@ class Board {
     }
 
     _initGame(cards) {
-        for (let i = 0; i < 12; i++) {
-            let position = Math.floor(Math.random() * cards.length);
-            this._$decks[position % 7].appendChild(cards.pop().$card);
+
+        for (let i = 0; i < 7; i++) {
+            for (let j = 0; j < i; j++) {
+                const c = cards.pop();
+                c.turn();
+                this._$decks[i].appendChild(c.$card);
+            }
+            this._$decks[i].appendChild(cards.pop().$card);
         }
+
+        // for (let i = 0; i < 12; i++) {
+        //     let position = Math.floor(Math.random() * cards.length);
+        //     this._$decks[position % 7].appendChild(cards.pop().$card);
+        // }
         cards.map(c => this._$pool.appendChild(c.$card));
     }
 
